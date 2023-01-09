@@ -33,8 +33,11 @@ import os
 import platform
 import sys
 from pathlib import Path
+import pandas as pd
 
 import torch
+from google.colab import drive
+
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -88,6 +91,10 @@ def run(
     screenshot = source.lower().startswith('screen')
     if is_url and is_file:
         source = check_file(source)  # download
+
+
+    #dataframe
+    dfpixel = pd.DataFrame(columns=['Frame','Type','X1','Y1','X2','Y2'])
 
     # Directories
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
@@ -159,6 +166,9 @@ def run(
                     n = (det[:, 5] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
+
+
+
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
@@ -171,10 +181,13 @@ def run(
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
+
                         x1=(xyxy[0].item())
                         y1=(xyxy[1].item())
                         x2=(xyxy[2].item())
                         y2=(xyxy[3].item())
+
+
                         dfpixel = dfpixel.append({'Frame' :int(frame) , 'Type' :names[int(cls)], 'X1' : x1,'Y1': y1,'X2':x2 , 'Y2':y2 },ignore_index = True)
 
                         #print(int(frame),names[int(cls)],x1,y1,x2,y2)
@@ -213,8 +226,9 @@ def run(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+
     #printdataframe
-    #print(dfpixel)
+    print(dfpixel)
     #drive.mount('/drive')
     #dfpixel.to_csv('C:\\Users\maris\OneDrive\Pictures\Research work\alldata.csv')
     #dfpixel.to_csv('/content/drive/My Drive/alldata.csv')
