@@ -171,6 +171,14 @@ def run(
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
+                        x1=(xyxy[0].item())
+                        y1=(xyxy[1].item())
+                        x2=(xyxy[2].item())
+                        y2=(xyxy[3].item())
+                        dfpixel = dfpixel.append({'Frame' :int(frame) , 'Type' :names[int(cls)], 'X1' : x1,'Y1': y1,'X2':x2 , 'Y2':y2 },ignore_index = True)
+
+                        #print(int(frame),names[int(cls)],x1,y1,x2,y2)
+
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
 
@@ -205,7 +213,12 @@ def run(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
-
+    #printdataframe
+    #print(dfpixel)
+    #drive.mount('/drive')
+    #dfpixel.to_csv('C:\\Users\maris\OneDrive\Pictures\Research work\alldata.csv')
+    #dfpixel.to_csv('/content/drive/My Drive/alldata.csv')
+    dfpixel.to_csv('/content/yolov5/testfile1.csv')
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
